@@ -144,6 +144,18 @@ Do not deploy the `PanelCode` contracts again; they are already live.
 - After the launch, `scriptHash()` on the deployed renderer returns the hash above, and `chunks()` returns the four
   addresses above.
 
+## Live
+
+Launched by the IMD swarm in [launch 1266](https://explorer.imd.fun/jobs/66dbbe30-2e7c-42d8-936a-e1630ed8075d), which
+wrote both contracts from this spec ([source](https://github.com/identity-md-launches/launch-1266-imd-panels-onchain-every)):
+
+| contract | address |
+| --- | --- |
+| `PanelDesigns` | [`0x1a23b1B293E3b263aE2C89AF4eFab733B00220e8`](https://etherscan.io/address/0x1a23b1B293E3b263aE2C89AF4eFab733B00220e8) |
+| `PanelRenderer` | [`0xbc2faa6e3e1d2fdcad62d382d5b495107f4b0631`](https://etherscan.io/address/0xbc2faa6e3e1d2fdcad62d382d5b495107f4b0631) |
+
+Any wallet's panel: `cast call 0xbc2faa6e3e1d2fdcad62d382d5b495107f4b0631 "panelOf(address)(string)" <wallet> --rpc-url <any node>`.
+
 ## License
 
 The code and the art are MIT; see `LICENSE`.
