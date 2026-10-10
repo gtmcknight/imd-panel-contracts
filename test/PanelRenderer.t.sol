@@ -132,20 +132,39 @@ contract PanelRendererTest is Test {
         assertEq(renderer.panelOf(wallet), Page.html(code, renderer.owners(), wallet, word, chainId));
     }
 
-    function test_rejectsAnEmptyChunk() public {
-        address a = _write(hex"aa");
-        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.EmptyChunk.selector, 2));
-        new PanelRenderer(ISeats(address(1)), IPanelDesigns(address(designs)), a, a, address(0xdead), a, bytes32(0));
-        // a piece holding only its STOP byte is empty too, and the first empty one is named
-        address stop = _write("");
-        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.EmptyChunk.selector, 1));
-        new PanelRenderer(ISeats(address(1)), IPanelDesigns(address(designs)), a, stop, a, address(0xdead), bytes32(0));
+    /// The constructor reads nothing: a launch rehearses it on an empty chain, where the pieces have no code. It deploys,
+    /// and publishes the hash it was given.
+    function test_deploysWhereThePiecesHaveNoCode() public {
+        PanelRenderer r = new PanelRenderer(ISeats(address(0x5EA75)), IPanelDesigns(address(0xDE51)), address(0xC0), address(0xC1), address(0xC2), address(0xC3), keccak256(code));
+        assertEq(r.scriptHash(), keccak256(code));
+        address[] memory c = r.chunks();
+        for (uint256 i; i < 4; ++i) assertEq(c[i], address(uint160(0xC0 + i)));
     }
 
+    /// Reading the code checks the pieces: the first with no bytes after its STOP byte is named, and nothing is served.
+    function test_rejectsAnEmptyChunk() public {
+        address a = _write(hex"aa");
+        PanelRenderer r = new PanelRenderer(seats, IPanelDesigns(address(designs)), a, a, address(0xdead), a, bytes32(0));
+        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.EmptyChunk.selector, 2));
+        r.script();
+        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.EmptyChunk.selector, 2));
+        r.panelOf(holder);
+        // a piece holding only its STOP byte is empty too, and the first empty one is named
+        address stop = _write("");
+        r = new PanelRenderer(seats, IPanelDesigns(address(designs)), a, stop, a, address(0xdead), bytes32(0));
+        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.EmptyChunk.selector, 1));
+        r.script();
+    }
+
+    /// Code whose hash is not the published one is never served.
     function test_rejectsCodeWhoseHashIsNotTheOneGiven() public {
         address a = _write(hex"aa");
+        PanelRenderer r = new PanelRenderer(seats, IPanelDesigns(address(designs)), a, a, a, a, keccak256("something else"));
+        assertEq(r.scriptHash(), keccak256("something else"));
         vm.expectRevert(abi.encodeWithSelector(PanelRenderer.WrongScript.selector, keccak256(hex"aaaaaaaa")));
-        new PanelRenderer(ISeats(address(1)), IPanelDesigns(address(designs)), a, a, a, a, keccak256("something else"));
+        r.script();
+        vm.expectRevert(abi.encodeWithSelector(PanelRenderer.WrongScript.selector, keccak256(hex"aaaaaaaa")));
+        r.panelOf(holder);
     }
 
     function _rendererOver(ISeats s) private returns (PanelRenderer) {

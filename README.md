@@ -69,12 +69,14 @@ contract PanelRenderer {
 a word with any of its upper 96 bits set (not an address); a `seats` address with no code gives all zeros, not a revert.
 A return of 32 bytes or more whose first word is a clean address is that address.
 
-Constructor:
+Constructor: store the arguments, `scriptHash = expectedHash`, and read nothing. A launch rehearses its deploy on an
+empty chain, where the chunks have no code, so the constructor must not call, read or check any other contract.
+
+Reading the script instead checks it, every time (`script()`, and `panelOf` through it):
 
 1. Revert `EmptyChunk(i)` if chunk `i`'s code is shorter than 2 bytes, checking 0 to 3 in order.
-2. Read the script from the four chunks (EXTCODECOPY from offset 1). If its keccak256 is not `expectedHash`, revert
-   `WrongScript(actualHash)`.
-3. Store `scriptHash`.
+2. Read the script from the four chunks (EXTCODECOPY from offset 1). If its keccak256 is not `scriptHash`, revert
+   `WrongScript(actualHash)`. Wrong or missing art is never served.
 
 `panelOf(wallet)` returns exactly this string, with no other bytes:
 
@@ -136,6 +138,8 @@ Do not deploy the `PanelCode` contracts again; they are already live.
   no SSTORE, and reads nothing of the block, caller or transaction (TIMESTAMP, NUMBER, PREVRANDAO, BLOCKHASH, COINBASE,
   ORIGIN, CALLER, GASPRICE, BASEFEE, BLOBHASH); PanelDesigns keeps only `designOf`. An owner, setter, upgrade path or
   extra function of any name fails it.
+- No owner or admin role of any kind, so nothing in either contract takes the paying wallet (`$owner`) as an argument.
+- Slither reports no `encode-packed-collision` or `incorrect-shift`.
 - `src/code/`, `art/`, `test/` and `foundry.toml` are untouched; `tools/gen-code.py` regenerates `src/code/` byte for byte.
 - After the launch, `scriptHash()` on the deployed renderer returns the hash above, and `chunks()` returns the four
   addresses above.

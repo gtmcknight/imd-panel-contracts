@@ -100,8 +100,11 @@ contract PanelLaunchTest is Test {
         address c3 = address(new PanelCode3());
         FullSeats seats = new FullSeats();
         IPanelDesigns designs = IPanelDesigns(address(new PanelDesigns()));
+        PanelRenderer r = new PanelRenderer(seats, designs, c1, c0, c2, c3, SCRIPT_HASH);
         vm.expectPartialRevert(PanelRenderer.WrongScript.selector);
-        new PanelRenderer(seats, designs, c1, c0, c2, c3, SCRIPT_HASH);
+        r.script();
+        vm.expectPartialRevert(PanelRenderer.WrongScript.selector);
+        r.panelOf(address(0xA11CE));
     }
 
     /// The page over the real art, byte for byte, whoever asks, whatever the design, on any chain, at any block and time.
