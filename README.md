@@ -101,16 +101,16 @@ The art also listens for `postMessage` events; see its source.
 
 ## The art is already onchain
 
-IMD deploys the four `PanelCode` contracts before this job, from `script/DeployArt.s.sol`, one transaction each; the
+IMD deployed the four `PanelCode` contracts before this job, from `script/DeployArt.s.sol`, one transaction each; the
 script checks the deployed bytes against the hash before anything is sent. They hold the bytes of `art/imd-panel.js.gz`
 and nothing else.
 
 | contract | address |
 | --- | --- |
-| `PanelCode0` | `TBD` |
-| `PanelCode1` | `TBD` |
-| `PanelCode2` | `TBD` |
-| `PanelCode3` | `TBD` |
+| `PanelCode0` | [`0xFc016403Ea7DAEA4582936E1c8D8D709E17593ab`](https://etherscan.io/address/0xFc016403Ea7DAEA4582936E1c8D8D709E17593ab) |
+| `PanelCode1` | [`0x0CE16147f1e69D151252f000e8Be3647a120c897`](https://etherscan.io/address/0x0CE16147f1e69D151252f000e8Be3647a120c897) |
+| `PanelCode2` | [`0x8E604EeBBC9D49e919b7D3de8534018a87292bE0`](https://etherscan.io/address/0x8E604EeBBC9D49e919b7D3de8534018a87292bE0) |
+| `PanelCode3` | [`0xCB8Ecec7902E55A62C34de38c950a907851ae298`](https://etherscan.io/address/0xCB8Ecec7902E55A62C34de38c950a907851ae298) |
 
 Anyone can check them: concatenate each one's bytecode after its first byte, in order, and the keccak256 is the hash above.
 
